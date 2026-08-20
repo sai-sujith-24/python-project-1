@@ -1,0 +1,10 @@
+num = int(input("Enter a number: "))
+
+count = 0
+   # handle negative numbers
+
+while num > 0:
+    count += 1
+    n = num // 10
+
+print("Number of digits:", count)
