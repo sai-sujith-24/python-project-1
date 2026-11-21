@@ -1,0 +1,23 @@
+name: Python checks
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - run: python -m compileall -q app.py feature_extraction.py train_model.py
+      - run: |
+          python - <<'PY'
+          from app import app
+          c=app.test_client()
+          assert c.get('/').status_code==200
+          for url, expected in [('https://example.com','No obvious'),('http://example.com','suspicious'),('badurl',None)]:
+              response=c.post('/scan',data={'url':url})
+              assert response.status_code==(400 if expected is None else 200)
+              if expected: assert expected.lower() in response.get_data(as_text=True).lower()
+          print('Flask smoke tests passed')
+          PY
