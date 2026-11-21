@@ -1,31 +1,17 @@
-from urllib.parse import urlparse
+from urllib.parse import urlsplit
+
 
 def extract_features(url):
-    features = []
-
-    # URL Length
-    features.append(len(url))
-
-    # HTTPS check
-    features.append(1 if "https" in url else 0)
-
-    # Count dots
-    features.append(url.count('.'))
-
-    # Count hyphens
-    features.append(url.count('-'))
-
-    # Count @ symbols
-    features.append(url.count('@'))
-
-    # Count digits
-    features.append(sum(c.isdigit() for c in url))
-
-    # Suspicious words
-    suspicious_words = ['login', 'verify', 'bank', 'secure']
-
-    features.append(
-        sum(word in url.lower() for word in suspicious_words)
-    )
-
-    return features
+    """Seven lexical features used by the optional training experiment."""
+    parsed = urlsplit(url)
+    host = parsed.hostname or ""
+    suspicious = ("login", "verify", "bank", "secure")
+    return [
+        len(url),
+        int(parsed.scheme.lower() == "https"),
+        host.count("."),
+        url.count("-"),
+        url.count("@"),
+        sum(c.isdigit() for c in url),
+        sum(word in host.lower() for word in suspicious),
+    ]
